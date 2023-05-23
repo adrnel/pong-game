@@ -1,8 +1,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const paddleWidth = 10;
-const paddleHeight = 100;
+const paddleWidth = 20;
+const paddleHeight = 80;
 const ballSize = 10;
 
 // Add score variables
@@ -53,6 +53,9 @@ function draw() {
 }
 
 
+const paddleCollisionOffset = 7; // Adjust this value to increase or decrease the collision box size
+const speedLimit = 20; // Adjust this value to increase or decrease the maximum speed of the ball
+
 function update() {
   // Update ball position
   ballX += ballSpeedX;
@@ -65,12 +68,23 @@ function update() {
 
   // Collision with paddles
   if (
-    (ballX <= paddleWidth && ballY >= playerY && ballY <= playerY + paddleHeight) ||
-    (ballX + ballSize >= canvas.width - paddleWidth && ballY >= cpuY && ballY <= cpuY + paddleHeight)
+    (ballX <= paddleWidth && ballY + ballSize >= playerY - paddleCollisionOffset && ballY <= playerY + paddleHeight + paddleCollisionOffset)
+  ) {
+    ballSpeedX = -ballSpeedX * 1.1; // Increase ball speed by 10% after each hit
+    ballSpeedY *= 1.1;
+  } else if (
+    (ballX + ballSize >= canvas.width - paddleWidth && ballY + ballSize >= cpuY - paddleCollisionOffset && ballY <= cpuY + paddleHeight + paddleCollisionOffset)
   ) {
     ballSpeedX = -ballSpeedX * 1.1; // Increase ball speed by 10% after each hit
     ballSpeedY *= 1.1;
   }
+
+  console.log('ballSpeedX: ', ballSpeedX);
+  console.log('ballSpeedY: ', ballSpeedY);
+
+  ballSpeedX = ballSpeedX > speedLimit ? speedLimit : ballSpeedX;
+  ballSpeedX = ballSpeedX < -speedLimit ? -speedLimit : ballSpeedX;
+  ballSpeedY = ballSpeedY > speedLimit ? speedLimit : ballSpeedY;
 
   // Ball out of bounds
   if (ballX <= 0 || ballX + ballSize >= canvas.width) {
