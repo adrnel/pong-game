@@ -79,9 +79,6 @@ function update() {
     ballSpeedY *= 1.1;
   }
 
-  console.log('ballSpeedX: ', ballSpeedX);
-  console.log('ballSpeedY: ', ballSpeedY);
-
   ballSpeedX = ballSpeedX > speedLimit ? speedLimit : ballSpeedX;
   ballSpeedX = ballSpeedX < -speedLimit ? -speedLimit : ballSpeedX;
   ballSpeedY = ballSpeedY > speedLimit ? speedLimit : ballSpeedY;
@@ -104,8 +101,8 @@ function update() {
     // Reset ball position and speed
     ballX = canvas.width / 2;
     ballY = canvas.height / 2;
-    ballSpeedX = 5;
-    ballSpeedY = 5;
+    ballSpeedX = 5 * (Math.random() < 0.5 ? -1 : 1);
+    ballSpeedY = 5 * (Math.random() < 0.5 ? -1 : 1)
   }
 
   // CPU paddle movement
