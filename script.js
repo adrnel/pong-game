@@ -65,7 +65,11 @@ function update() {
   ballY += ballSpeedY;
 
   // Collision with walls
-  if (ballY <= 0 || ballY + ballSize >= canvas.height) {
+  if (ballY <= 0) {
+    ballY = 0;
+    ballSpeedY = -ballSpeedY;
+  } else if (ballY + ballSize >= canvas.height) {
+    ballY = canvas.height - ballSize;
     ballSpeedY = -ballSpeedY;
   }
 
@@ -118,7 +122,8 @@ function update() {
   }
 
   // CPU paddle movement
-  cpuY += (ballY - (cpuY + paddleHeight / 2)) * difficulty;
+  let cpuNextY = cpuY + (ballY - (cpuY + paddleHeight / 2)) * difficulty;
+  cpuY = cpuNextY < 0 ? 0 : cpuNextY + paddleHeight > canvas.height ? canvas.height - paddleHeight : cpuNextY;
 
   draw();
 }
@@ -126,7 +131,8 @@ function update() {
 // Mouse event listener for player movement
 canvas.addEventListener('mousemove', (event) => {
   const rect = canvas.getBoundingClientRect();
-  playerY = event.clientY - rect.top - paddleHeight / 2;
+  let mouseY = event.clientY - rect.top - paddleHeight / 2;
+  playerY = mouseY < 0 ? 0 : mouseY + paddleHeight > canvas.height ? canvas.height - paddleHeight : mouseY;
 });
 
 // Game UI functionality
