@@ -48,11 +48,16 @@ function draw() {
   ctx.fillStyle = 'white';
   ctx.fillRect(0, playerY, paddleWidth, paddleHeight);
   ctx.fillRect(canvas.width - paddleWidth, cpuY, paddleWidth, paddleHeight);
-  ctx.fillRect(ballX, ballY, ballSize, ballSize);
+
+  // Draw the ball as a circle instead of a square
+  ctx.beginPath();
+  ctx.arc(ballX + ballSize / 2, ballY + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
+  ctx.fill();
 
   // Display scores
   displayScores();
 }
+
 
 
 const paddleCollisionOffset = 7; // Adjust this value to increase or decrease the collision box size
