@@ -37,8 +37,10 @@ let ballY = canvas.height / 2;
 let ballSpeedX = 5;
 let ballSpeedY = 5;
 let currentBallSpeed = initialBallSpeed;
+let difficulty = 0.14; // Default difficulty (medium)
 
-let difficulty = 0.1; // Default difficulty (medium)
+let ballTrail = [];
+const trailLength = 3; // Length of the trail
 
 function draw() {
   // Clear canvas
@@ -54,6 +56,15 @@ function draw() {
   ctx.arc(ballX + ballSize / 2, ballY + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
   ctx.fill();
 
+  for (let i = 0; i < ballTrail.length; i++) {
+    const ratio = (ballTrail.length - i) / ballTrail.length;
+    ctx.fillStyle = `rgba(255, 255, 255, ${ratio / 2})`;
+    const pos = ballTrail[i];
+    ctx.beginPath();
+    ctx.arc(pos.x + ballSize / 2, pos.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   // Display scores
   displayScores();
 }
@@ -64,6 +75,11 @@ const paddleCollisionOffset = 7; // Adjust this value to increase or decrease th
 const speedLimit = 20; // Adjust this value to increase or decrease the maximum speed of the ball
 
 function update() {
+
+  ballTrail.unshift({x: ballX, y: ballY});
+  if (ballTrail.length > trailLength) {
+    ballTrail.pop();
+  }
 
   // Update ball position
   ballX += ballSpeedX;
