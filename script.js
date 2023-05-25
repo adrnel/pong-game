@@ -154,12 +154,15 @@ canvas.addEventListener('mousemove', (event) => {
   playerY = mouseY < 0 ? 0 : mouseY + paddleHeight > canvas.height ? canvas.height - paddleHeight : mouseY;
 });
 
-canvas.addEventListener('touchmove', (event) => {
+canvas.addEventListener('touchmove', function(event) {
+  event.preventDefault(); // Prevent scrolling when interacting with the canvas
+  
   const rect = canvas.getBoundingClientRect();
   let scale = canvas.height / rect.height;
   let touchY = (event.touches[0].clientY - rect.top) * scale - paddleHeight / 2;
   playerY = touchY < 0 ? 0 : touchY + paddleHeight > canvas.height ? canvas.height - paddleHeight : touchY;
-});
+}, { passive: false }); // passive: false is required for preventDefault() to work in certain browsers
+
 
 
 // Game UI functionality

@@ -3,7 +3,8 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  overflow: auto;
   background-color: black;
   margin: 0;
   color: white;
@@ -45,7 +46,56 @@ button:hover {
     width: 80%;
     height: 80%;
   }
-  #mainMenu, 
+}
+
+@media (max-width: 800px) and (orientation: landscape) {
+  
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 55%;
+    height: 55%;
+  }
+}
+
+@media (max-width: 600px) and (orientation: landscape) {
+  
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 40%;
+    height: 40%;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 40%;
+    height: 40%;
+  }
+}
+
+@media (max-height: 400px) and (orientation: landscape) {
+  
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 35%;
+    height: 35%;
+  }
+}
+
+@media (max-height: 300px) and (orientation: landscape) {
+  
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 20%;
+    height: 20%;
+  }
 }
 
 #canvasContainer {
