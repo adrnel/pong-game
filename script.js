@@ -69,8 +69,6 @@ function draw() {
   displayScores();
 }
 
-
-
 const paddleCollisionOffset = 7; // Adjust this value to increase or decrease the collision box size
 const speedLimit = 20; // Adjust this value to increase or decrease the maximum speed of the ball
 
@@ -149,12 +147,20 @@ function update() {
   draw();
 }
 
-// Mouse event listener for player movement
 canvas.addEventListener('mousemove', (event) => {
   const rect = canvas.getBoundingClientRect();
-  let mouseY = event.clientY - rect.top - paddleHeight / 2;
+  let scale = canvas.height / rect.height;
+  let mouseY = (event.clientY - rect.top) * scale - paddleHeight / 2;
   playerY = mouseY < 0 ? 0 : mouseY + paddleHeight > canvas.height ? canvas.height - paddleHeight : mouseY;
 });
+
+canvas.addEventListener('touchmove', (event) => {
+  const rect = canvas.getBoundingClientRect();
+  let scale = canvas.height / rect.height;
+  let touchY = (event.touches[0].clientY - rect.top) * scale - paddleHeight / 2;
+  playerY = touchY < 0 ? 0 : touchY + paddleHeight > canvas.height ? canvas.height - paddleHeight : touchY;
+});
+
 
 // Game UI functionality
 const mainMenu = document.getElementById('mainMenu');
@@ -219,7 +225,6 @@ function pauseGame() {
   }
   gamePaused = !gamePaused; // Toggle the gamePaused variable to its opposite value
 }
-
 
 window.onload = function () {
   // Attach event listeners to buttons

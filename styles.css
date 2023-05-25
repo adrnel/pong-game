@@ -33,3 +33,22 @@ button:hover {
   background-color: lightgray;
   color: black;
 }
+
+#gameUI {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 1000px) {
+  /* your css for mobile devices goes here */
+  /* Example: */
+  canvas {
+    width: 80%;
+    height: 80%;
+  }
+  #mainMenu, 
+}
+
+#canvasContainer {
+  display: flex;
+  justify-content: center;
+}
