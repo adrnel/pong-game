@@ -1,10 +1,15 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const paddleWidth = 20;
-const paddleHeight = 80;
+const paddleWidth = 35;
+const paddleHeight = 100;
 const ballSize = 10;
-const initialBallSpeed = 8;
+const initialBallSpeed = 5;
+const paddleCollisionOffset = 7; // Adjust this value to increase or decrease the collision box size
+const speedLimit = 17; // Adjust this value to increase or decrease the maximum speed of the ball
+
+let delayBall = false;
+let delayStartTime;
 
 // Add score variables
 let playerScore = 0;
@@ -34,8 +39,8 @@ let playerY = (canvas.height - paddleHeight) / 2;
 let cpuY = (canvas.height - paddleHeight) / 2;
 let ballX = canvas.width / 2;
 let ballY = canvas.height / 2;
-let ballSpeedX = 5;
-let ballSpeedY = 5;
+let ballSpeedX = initialBallSpeed;
+let ballSpeedY = initialBallSpeed;
 let currentBallSpeed = initialBallSpeed;
 let difficulty = 0.14; // Default difficulty (medium)
 
@@ -69,9 +74,6 @@ function draw() {
   displayScores();
 }
 
-const paddleCollisionOffset = 7; // Adjust this value to increase or decrease the collision box size
-const speedLimit = 20; // Adjust this value to increase or decrease the maximum speed of the ball
-
 function update() {
 
   ballTrail.unshift({x: ballX, y: ballY});
@@ -79,9 +81,19 @@ function update() {
     ballTrail.pop();
   }
 
-  // Update ball position
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
+  // Delay ball movement for half a second at the start of each point
+  if (delayBall) {
+    if (Date.now() - delayStartTime >= 500) {
+      // After half a second, reset ball speed
+      ballSpeedX = initialBallSpeed * (Math.random() < 0.5 ? -1 : 1);
+      ballSpeedY = initialBallSpeed * (Math.random() < 0.5 ? -1 : 1);
+      delayBall = false;
+    }
+  } else {
+    // Update ball position
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+  }
 
   // Collision with walls
   if (ballY <= 0) {
@@ -92,30 +104,53 @@ function update() {
     ballSpeedY = -ballSpeedY;
   }
 
-  // Collision with paddles
-  if (
-    (ballX <= paddleWidth && ballY + ballSize >= playerY - paddleCollisionOffset && ballY <= playerY + paddleHeight + paddleCollisionOffset)
-  ) {
-    let relativeIntersectY = (playerY + (paddleHeight / 2)) - ballY;
-    let normalizedRelativeIntersectionY = (relativeIntersectY / (paddleHeight / 2));
-    let bounceAngle = (normalizedRelativeIntersectionY * 30 + 15) * (Math.PI / 180);
-    ballSpeedX = currentBallSpeed * Math.cos(bounceAngle);
-    ballSpeedY = currentBallSpeed * -Math.sin(bounceAngle);
-    currentBallSpeed *= 1.05;
-  } else if (
-    (ballX + ballSize >= canvas.width - paddleWidth && ballY + ballSize >= cpuY - paddleCollisionOffset && ballY <= cpuY + paddleHeight + paddleCollisionOffset)
-  ) {
-    let relativeIntersectY = (cpuY + (paddleHeight / 2)) - ballY;
-    let normalizedRelativeIntersectionY = (relativeIntersectY / (paddleHeight / 2));
-    let bounceAngle = (normalizedRelativeIntersectionY * 30 + 15) * (Math.PI / 180);
-    ballSpeedX = currentBallSpeed * -Math.cos(bounceAngle);
-    ballSpeedY = currentBallSpeed * -Math.sin(bounceAngle);
-    currentBallSpeed *= 1.05;
-  }
+// Collision with paddles
+if (
+  (ballX <= paddleWidth && ballY + ballSize >= playerY - paddleCollisionOffset && ballY <= playerY + paddleHeight + paddleCollisionOffset)
+) {
+  let relativeIntersectY = (playerY + (paddleHeight / 2)) - ballY;
+  let normalizedRelativeIntersectionY = (relativeIntersectY / (paddleHeight / 2));
+  let bounceAngle = (normalizedRelativeIntersectionY * 30 + 15) * (Math.PI / 180);
 
-  ballSpeedX = ballSpeedX > speedLimit ? speedLimit : ballSpeedX;
-  ballSpeedX = ballSpeedX < -speedLimit ? -speedLimit : ballSpeedX;
-  ballSpeedY = ballSpeedY > speedLimit ? speedLimit : ballSpeedY;
+  // Calculate total speed before the bounce
+  let totalSpeed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+
+  // Increase speed
+  totalSpeed *= 1.05;
+
+  // Apply speed limit
+  totalSpeed = Math.min(totalSpeed, speedLimit);
+
+  // Apply that total speed to the new angle
+  ballSpeedX = totalSpeed * Math.cos(bounceAngle);
+  ballSpeedY = totalSpeed * -Math.sin(bounceAngle);
+} else if (
+  (ballX + ballSize >= canvas.width - paddleWidth && ballY + ballSize >= cpuY - paddleCollisionOffset && ballY <= cpuY + paddleHeight + paddleCollisionOffset)
+) {
+  let relativeIntersectY = (cpuY + (paddleHeight / 2)) - ballY;
+  let normalizedRelativeIntersectionY = (relativeIntersectY / (paddleHeight / 2));
+  let bounceAngle = (normalizedRelativeIntersectionY * 30 + 15) * (Math.PI / 180);
+
+  // Calculate total speed before the bounce
+  let totalSpeed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+
+  // Increase speed
+  totalSpeed *= 1.05;
+
+  // Apply speed limit
+  totalSpeed = Math.min(totalSpeed, speedLimit);
+
+  // Apply that total speed to the new angle
+  ballSpeedX = totalSpeed * -Math.cos(bounceAngle);
+  ballSpeedY = totalSpeed * -Math.sin(bounceAngle);
+}
+
+
+
+  // ballSpeedX = ballSpeedX > speedLimit ? speedLimit : ballSpeedX;
+  // ballSpeedX = ballSpeedX < -speedLimit ? -speedLimit : ballSpeedX;
+  // ballSpeedY = ballSpeedY > speedLimit ? speedLimit : ballSpeedY;
+
 
   // Ball out of bounds
   if (ballX <= 0 || ballX + ballSize >= canvas.width) {
@@ -135,10 +170,29 @@ function update() {
     // Reset ball position and speed
     ballX = canvas.width / 2;
     ballY = canvas.height / 2;
-    ballSpeedX = 5 * (Math.random() < 0.5 ? -1 : 1);
-    ballSpeedY = 5 * (Math.random() < 0.5 ? -1 : 1);
+    ballSpeedX = 0;
+    ballSpeedY = 0;
     currentBallSpeed = initialBallSpeed;
+
+    // Delay ball movement
+    delayBall = true;
+    delayStartTime = Date.now();
   }
+
+  // Delay ball movement for half a second at the start of each point
+  if (delayBall) {
+    if (Date.now() - delayStartTime >= 500) {
+      // After half a second, reset ball speed
+      ballSpeedX = initialBallSpeed * (Math.random() < 0.5 ? -1 : 1);
+      ballSpeedY = initialBallSpeed * (Math.random() < 0.5 ? -1 : 1);
+      delayBall = false;
+    }
+  } else {
+    // Update ball position
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+  }
+
 
   // CPU paddle movement
   let cpuNextY = cpuY + (ballY - (cpuY + paddleHeight / 2)) * difficulty;
@@ -182,6 +236,11 @@ function startGame() {
   mainMenu.style.display = 'none';
   gameCanvas.style.display = 'block';
   gameUI.style.display = 'block';
+
+  // Set delayBall to true
+  delayBall = true;
+  delayStartTime = Date.now();
+
   // Start the game loop
   gameInterval = setInterval(update, 1000 / 60);
 }
@@ -196,8 +255,8 @@ function quitGame() {
   // Reset game state
   ballX = canvas.width / 2;
   ballY = canvas.height / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
+  ballSpeedX = initialBallSpeed;
+  ballSpeedY = initialBallSpeed;
   currentBallSpeed = initialBallSpeed;
   playerY = (canvas.height - paddleHeight) / 2;
   cpuY = (canvas.height - paddleHeight) / 2;
@@ -213,8 +272,8 @@ function resetGame() {
   // Reset ball position and speed
   ballX = canvas.width / 2;
   ballY = canvas.height / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
+  ballSpeedX = initialBallSpeed;
+  ballSpeedY = initialBallSpeed;
   currentBallSpeed = initialBallSpeed;
 }
 
@@ -235,3 +294,4 @@ window.onload = function () {
   pauseButton.addEventListener('click', pauseGame);
   quitButton.addEventListener('click', quitGame);
 };
+
